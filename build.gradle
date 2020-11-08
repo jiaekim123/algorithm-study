@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'com.study.algorithm'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:5.1.0")
+}
+
+test {
+    useJUnitPlatform()
+}
