@@ -7,7 +7,7 @@ package week1;
 import java.util.LinkedList;
 
 public class Solution {
-
+// TODO : 해 결 해
     static LinkedList<Integer> [] list;
     static int []dis;
     static int cnt=0, max=0, leaf=1;
