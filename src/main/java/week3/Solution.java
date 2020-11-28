@@ -4,11 +4,7 @@
  */
 package week3;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
 class Solution {
-
     public int solution(int n, int[][] results) {
         int answer = 0;
         int maxV = 1000000;
