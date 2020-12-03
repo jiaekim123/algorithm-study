@@ -14,7 +14,6 @@ class Solution {
             fileList.add(new File(file));
         }
 
-        System.out.println(fileList);
         Collections.sort(fileList);
 
         for (int i = 0; i<fileList.size(); i++){
