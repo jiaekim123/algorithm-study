@@ -10,18 +10,48 @@ import java.util.Map;
 import java.util.Queue;
 
 class Solution {
+    private final static int DIV_NUM = 1000000007;
     public int solution(int m, int n, int[][] puddles) {
-        int answer = Integer.MAX_VALUE;
-        Map<Integer, Integer> map = new HashMap<>();
-        // map의 최소 key값의 value를 반환
+//        int answer = Integer.MAX_VALUE;
+//        Map<Integer, Integer> map = new HashMap<>();
+//        // map의 최소 key값의 value를 반환
+//
+//        bfs(map, m, n, puddles);
+//
+//        for (int key : map.keySet()){
+//            if (key < answer) answer = map.get(key);
+//        }
 
-        bfs(map, m, n, puddles);
-
-        for (int key : map.keySet()){
-            if (key < answer) answer = map.get(key);
+        return dp(m, n, puddles);
+    }
+    private int dp(int m, int n, int[][] puddles) {
+        int[][] paths = new int[m][n];
+        paths[0][0] = 1;
+        // 웅덩이는 -1로 변경
+        for (int[] puddle : puddles){
+            paths[puddle[0] - 1][puddle[1] - 1] = -1;
         }
 
-        return answer;
+        for (int x = 0; x < m; x++) {
+            for (int y = 0; y < n; y++) {
+                // 웅덩이면 빠져나오고 나중 계산을 위해 0으로 변경
+                if (paths[x][y] == -1){
+                    paths[x][y] = 0;
+                    continue;
+                }
+                // 왼쪽에서 온 루트 추가
+                if (x != 0) {
+                    paths[x][y] += paths[x-1][y] % DIV_NUM;
+                }
+
+                // 위에서 온 루트 추가
+                if (y != 0) {
+                    paths[x][y] += paths[x][y-1] % DIV_NUM;
+                }
+            }
+        }
+
+        return paths[m-1][n-1] % DIV_NUM;
     }
 
     private void bfs(Map<Integer, Integer> map, int m, int n, int[][] puddles){
@@ -57,6 +87,7 @@ class Solution {
         return false;
     }
 }
+
 class Point {
     int x;
     int y;
