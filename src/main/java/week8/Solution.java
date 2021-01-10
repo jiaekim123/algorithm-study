@@ -4,20 +4,27 @@
  */
 package week8;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class Solution {
     public int solution(int[] a) {
         int answer = 0;
+        Map<Integer, Integer> map = new HashMap<>(a.length);
 
-        int[] count = new int[a.length + 1]; // a길이 미만의 수
         for (int i = 0; i < a.length; i++) {
-            count[a[i]]++;
+            if (map.get(a[i]) == null) {
+                map.put(a[i], 1);
+            } else {
+                map.replace(a[i], map.get(a[i]) + 1);
+            }
         }
 
-        for (int i = 0; i<count.length; i++) {
-            if (count[i] * 2 <= answer) continue;
+        for (int key : map.keySet()) {
+            if (map.get(key) * 2 <= answer) continue;
             int star = 0;
             for (int j = 0; j < a.length - 1; j++) {
-                if ((a[j] == i || a[j + 1] == i) && (a[j] != a[j + 1])) {
+                if ((a[j] == key || a[j + 1] == key) && (a[j] != a[j + 1])) {
                     star += 2;
                     j++;
                 }
