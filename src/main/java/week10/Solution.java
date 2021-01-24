@@ -7,24 +7,17 @@ package week10;
 class Solution {
     public boolean solution(int[][] key, int[][] lock) {
         // n,m 제한이 크지 않으니까 다해본다
-        boolean answer = false;
-        matching(key, lock);
-        for (int i = 0; i < 3; i++) {
-            key = left90(key);
-            if(matching(key, lock)) return true;
-//            System.out.println();
-        }
-        return answer;
-    }
+        lock = copyLock(lock, key.length);
 
-    public void print(int[][] k) {
-        int l = k.length;
-        for (int i = 0; i < l; i++) {
-            for (int j = 0; j < l; j++) {
-                System.out.print(k[i][j] + " ");
+        if (matching(key, lock)) return true;
+        for (int i = 0; i < 3; i++) {
+
+            key = left90(key);
+            if (matching(key, lock)) {
+                return true;
             }
-            System.out.println();
         }
+        return false;
     }
 
     public int[][] left90(int[][] key) {
@@ -38,31 +31,54 @@ class Solution {
         return ret;
     }
 
+    public int[][] copyLock(int[][] lock, int m) {
+        int len = lock.length;
+        int[][] newLock = new int[len + (2 * m)][len + (2 * m)];
+        for (int i = m; i < len + (2 * m) - m; i++) {
+            for (int j = m; j < len + (2 * m) - m; j++) {
+                newLock[i][j] = lock[i - m][j - m];
+            }
+        }
+        return newLock;
+    }
+
     public boolean matching(int[][] key, int[][] lock) {
         int len = key.length;
         int max = lock.length;
-        boolean check = true;
-        for (int c = 0; c < max-1; c++) { // 0, 1, 2
-            for (int l = 0; l < max-1; l++) { // 0, 1, 2
-                check = true;
-//                System.out.println(c+" "+l+"일때 ");
-                for (int i = 0; i < len; i++) {
-                    for (int j = 0; j < len; j++) {
-                        if (i + c >= max || j + l >= max) continue;
-                        if (key[i][j] == lock[i + c][j + l]) {
-//                            System.out.println(i + "." + j + " :: " + (i+c) + "." + (j+l));
-                            check = false;
-                        }
-                        if(!check) break;
-                    }
-                    if(!check) break;
-                }
-                if(check) {
-//                    System.out.println(c+" "+l+"일때 check 는 true");
-                    return true;
-                }
+        for (int i = 1; i < max - len; i++) {
+            for (int j = 1; j < max - len; j++) {
+                int[][] result = moveKey(key, lock, i, j);
+                if (checkLock(result, len)) return true;
             }
         }
         return false;
+    }
+
+    public int[][] moveKey(int[][] key, int[][] lock, int lx, int ly) {
+        int n = key.length;
+        int[][] ret = new int[lock.length][lock.length];
+
+        for (int i = n; i < ret.length - n; i++) {
+            for (int j = n; j < ret.length - n; j++) {
+                ret[i][j] = lock[i][j];
+            }
+        }
+
+        for (int i = 0; i < key.length; i++) {
+            for (int j = 0; j < key.length; j++) {
+                ret[lx + i][ly + j] = key[i][j] + lock[lx + i][ly + j];
+            }
+        }
+
+        return ret;
+    }
+
+    public boolean checkLock(int[][] lock, int start) {
+        for (int i = start; i < lock.length - start; i++) {
+            for (int j = start; j < lock.length - start; j++) {
+                if (lock[i][j] != 1) return false;
+            }
+        }
+        return true;
     }
 }
