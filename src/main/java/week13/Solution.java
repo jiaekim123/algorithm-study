@@ -9,56 +9,49 @@ import java.util.Stack;
 class Solution {
     public String solution(String p) {
         String answer = solve(p);
-        System.out.println(answer);
         return answer;
     }
 
     public String solve(String p) {
         if (p.equals("")) return p; // 1 단계
-        int index = 1;
-        while (true) {
-            // 2단계
-            String u = p.substring(0, index);
-            String v = p.substring(index, p.length());
-            int f = find(u);
-            if (f == 0) return u + solve(v); // 3-1
-            else if (f == 2) {
-                index++;
-                continue;
-            } else { // 4 단계
-                String ret = "(";
-                ret += solve(v);
-                ret += ")";
-                u = u.substring(1, ret.length() - 1);
-                String new_u = "";
-                for (int i = 0; i < u.length(); i++) {
-                    if (u.charAt(i) == ')') new_u += "(";
-                    else new_u += ")";
-                }
-                return ret + new_u;
+
+        // 2 단계
+        int index = find(p);
+        String u = p.substring(0, index);
+        String v = p.substring(index, p.length());
+        boolean check = isRight(u);
+        if (check) return u + solve(v); // 3-1
+        else { // 4 단계
+            String ret = "(" + solve(v) + ")";
+            u = u.substring(1, u.length() - 1);
+            String new_u = "";
+            for (int i = 0; i < u.length(); i++) {
+                if (u.charAt(i) == ')') new_u += "(";
+                else new_u += ")";
             }
+            return ret + new_u;
         }
     }
 
     public int find(String s) {
-        char[] c = s.toCharArray();
-        int left = 0;
         int right = 0;
-        Stack<Character> st = new Stack();
+        int left = 0;
         for (int i = 0; i < s.length(); i++) {
-            if (c[i] == '(') {
-                left++;
-                st.push(c[i]);
-            } else {
-                right++;
-                if (st.size() != 0 && st.peek() == '(') st.pop();
-                else st.push(c[i]);
-            }
+            if (s.charAt(i) == '(') left++;
+            else right++;
 
+            if (left == right) return i + 1;
         }
-        if (st.size() == 0) return 0; // 올바른 문자열
-        if (left == right) return 1; // 균형잡힌 문자열
-        return 2; // 예외
+        return -1;
     }
 
+    public boolean isRight(String s) {
+        int cnt = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(') cnt++;
+            else cnt--;
+            if (cnt < 0) return false;
+        }
+        return true;
+    }
 }
