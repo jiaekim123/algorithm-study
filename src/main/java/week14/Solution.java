@@ -11,8 +11,17 @@ class Solution {
 
     // 1. bfs 로 특정위치에서 가까운 동일 숫자 찾기
     // 2. bfs 로 주변 숫자 중 가까운 숫자 찾기
+    static int[] dx = {0, 1, -1, 0};
+    static int[] dy = {1, 0, 0, -1};
     public int solution(int[][] board, int r, int c) {
-        int answer = bfs(board, r, c, board[r][c]);
+        // 현재 위치에서 가장 가까운 것 찾기
+        int []next = nextNum(board, r,c);
+        int nextNum = board[next[0]][next[1]];
+        int answer = 0;
+        if (nextNum != 0) {
+            System.out.println(next[2]+" ===  ret "+ answer);
+            answer += next[2] + bfs(board, next[0], next[1], nextNum);
+        }
         return answer;
     }
 
@@ -37,10 +46,11 @@ class Solution {
             if (board[x][y] == num) {
                 board[x][y] = 0;
                 int[] next = nextNum(board, x, y);
-//                System.out.println("ret " + dis[x][y] + " next 숫자 " + board[next[0]][next[1]] + " ");
+                System.out.println("ret " + dis[x][y] + " next 숫자 " + board[next[0]][next[1]] + " ");
                 ret = dis[x][y] + 1;
                 int nextNum = board[next[0]][next[1]];
                 if (nextNum != 0) {
+                    System.out.println(next[2]+" ===  ret "+ ret);
                     ret += next[2] + bfs(board, next[0], next[1], nextNum);
                 }
                 break;
@@ -67,9 +77,6 @@ class Solution {
 
     public int[] nextNum(int[][] board, int sx, int sy) {
         int maxLen = board.length;
-        int[] dx = {0, 1, -1, 0};
-        int[] dy = {1, 0, 0, -1};
-
         boolean[][] check = new boolean[maxLen][maxLen];
         check[sx][sy] = true;
 
