@@ -4,112 +4,126 @@
  */
 package week14;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 class Solution {
 
-    // 1. bfs 로 특정위치에서 가까운 동일 숫자 찾기
-    // 2. bfs 로 주변 숫자 중 가까운 숫자 찾기
     static int[] dx = {0, 1, -1, 0};
     static int[] dy = {1, 0, 0, -1};
-    public int solution(int[][] board, int r, int c) {
-        // 현재 위치에서 가장 가까운 것 찾기
-        int []next = nextNum(board, r,c);
-        int nextNum = board[next[0]][next[1]];
-        int answer = 0;
-        if (nextNum != 0) {
-            System.out.println(next[2]+" ===  ret "+ answer);
-            answer += next[2] + bfs(board, next[0], next[1], nextNum);
+    static int INFINIFY = 999999999;
+
+    class Node implements Comparable<Node> {
+        int d, x, y;
+
+        Node(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
+
+        Node(int d, int x, int y) {
+            this.d = d;
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            return this.d - o.d;
+        }
+    }
+
+    public boolean isFinished(int[][] board) {
+        for (int[] i : board) {
+            for (int j : i) {
+                if (j != 0) return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean inRange(int x, int y) {
+        return x >= 0 && y >= 0 && x < 4 && y < 4;
+    }
+
+    public int getDiks(int[][] board, int x1, int y1, int x2, int y2) {
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        pq.add(new Node(0, x1, y1));
+        int[][] dis = new int[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                dis[i][j] = INFINIFY;
+            }
+        }
+        dis[x1][y1] = 0;
+        while (!pq.isEmpty()) {
+            Node now = pq.poll();
+            int d = now.d;
+            if (dis[now.x][now.y] < d) continue;
+            if (now.x == x2 && now.y == y2) return d;
+            for (int i = 0; i < 4; i++) {
+                int cnt = 0;
+                int nx = now.x;
+                int ny = now.y;
+                // 한 칸씩 i 방향으로 옮겨가며 최단거리 계산
+                while (inRange(nx+dx[i], ny+dy[i])) {
+                    cnt++;
+                    nx += dx[i];
+                    ny += dy[i];
+//                    if (nx < 0 || ny < 0 || nx >= 4 || ny >= 4) break;
+                    if (dis[nx][ny] > d + cnt) {
+                        dis[nx][ny] = d + cnt;
+                        pq.add(new Node(d + cnt, nx, ny));
+                    }
+                }
+
+                // 카드 또는 벽을 마주친 경우
+                if (dis[nx][ny] > d + 1) {
+                    dis[nx][ny] = d + 1;
+                    pq.add(new Node(d + 1, nx, ny));
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int solve(int[][] board, int r, int c) {
+        if (isFinished(board)) return 0;
+        int answer = INFINIFY;
+
+        // 카드 뒤집기
+        for (int k = 1; k <= 6; k++) {
+            List<Node> list = new ArrayList<>();
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (board[i][j] == k) {
+                        list.add(new Node(i, j));
+                    }
+                }
+            }
+            if (list.isEmpty()) continue;
+
+            // 첫번째 카드 뒤집음
+            int card1 = getDiks(board, r, c, list.get(0).x, list.get(0).y)
+                    + getDiks(board, list.get(0).x, list.get(0).y, list.get(1).x, list.get(1).y) + 2;
+            // 두번째 카드
+            int card2 = getDiks(board, r, c, list.get(1).x, list.get(1).y)
+                    + getDiks(board, list.get(1).x, list.get(1).y, list.get(0).x, list.get(0).y) + 2;
+
+            board[list.get(0).x][list.get(0).y] = 0;
+            board[list.get(1).x][list.get(1).y] = 0;
+
+            answer = Math.min(answer,
+                    Math.min(card1 + solve(board, list.get(1).y, list.get(1).x), card2 + solve(board, list.get(0).x, list.get(0).y)));
+
+            board[list.get(0).x][list.get(0).y] = k;
+            board[list.get(1).x][list.get(1).y] = k;
+
+        }
+
         return answer;
     }
 
-    public int bfs(int[][] board, int sx, int sy, int num) {
-        int maxLen = board.length;
-        int[] dx = {0, 1, -1, 0};
-        int[] dy = {1, 0, 0, -1};
-
-        boolean[][] check = new boolean[maxLen][maxLen];
-        check[sx][sy] = true;
-
-        Queue<Integer> q = new LinkedList<>();
-        q.add(sx);
-        q.add(sy);
-        board[sx][sy] = 0;
-        int[][] dis = new int[maxLen][maxLen];
-        dis[sx][sy] = 1;
-        int ret = 0;
-        while (!q.isEmpty()) {
-            int x = q.poll();
-            int y = q.poll();
-            if (board[x][y] == num) {
-                board[x][y] = 0;
-                int[] next = nextNum(board, x, y);
-                System.out.println("ret " + dis[x][y] + " next 숫자 " + board[next[0]][next[1]] + " ");
-                ret = dis[x][y] + 1;
-                int nextNum = board[next[0]][next[1]];
-                if (nextNum != 0) {
-                    System.out.println(next[2]+" ===  ret "+ ret);
-                    ret += next[2] + bfs(board, next[0], next[1], nextNum);
-                }
-                break;
-            }
-            for (int i = 0; i < 4; i++) {
-                // Ctrl + 이동
-                for (int j = 1; j < maxLen; j++) {
-                    int nx = x + dx[i] * j;
-                    int ny = y + dy[i] * j;
-
-                    if (nx < 0 || ny < 0 || nx >= maxLen || ny >= maxLen) continue;
-                    if (check[nx][ny] || (board[nx][ny] != 0 && board[nx][ny] != num)) continue;
-
-                    q.add(nx);
-                    q.add(ny);
-                    check[nx][ny] = true;
-                    dis[nx][ny] = dis[x][y] + 1;
-                }
-            }
-        }
-
-        return ret;
-    }
-
-    public int[] nextNum(int[][] board, int sx, int sy) {
-        int maxLen = board.length;
-        boolean[][] check = new boolean[maxLen][maxLen];
-        check[sx][sy] = true;
-
-        Queue<Integer> q = new LinkedList<>();
-        q.add(sx);
-        q.add(sy);
-        int[] ret = new int[3];
-        int[][] dis = new int[maxLen][maxLen];
-        dis[sx][sy] = 0;
-        while (!q.isEmpty()) {
-            int x = q.poll();
-            int y = q.poll();
-            if (board[x][y] != 0) {
-                ret[0] = x;
-                ret[1] = y;
-                ret[2] = dis[x][y];
-                return ret;
-            }
-            for (int i = 0; i < 4; i++) {
-                // Ctrl + 이동
-                for (int j = 1; j < maxLen; j++) {
-                    int nx = x + dx[i] * j;
-                    int ny = y + dy[i] * j;
-
-                    if (nx < 0 || ny < 0 || nx >= maxLen || ny >= maxLen) continue;
-                    if (check[nx][ny]) continue;
-                    q.add(nx);
-                    q.add(ny);
-                    check[nx][ny] = true;
-                    dis[nx][ny] = dis[x][y] + 1;
-                }
-            }
-        }
-        return ret;
+    public int solution(int[][] board, int r, int c) {
+        return solve(board, r, c);
     }
 }
