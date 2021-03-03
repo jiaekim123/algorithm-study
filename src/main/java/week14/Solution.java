@@ -65,11 +65,11 @@ class Solution {
                 int nx = now.x;
                 int ny = now.y;
                 // 한 칸씩 i 방향으로 옮겨가며 최단거리 계산
-                while (inRange(nx+dx[i], ny+dy[i])) {
+                while (inRange(nx + dx[i], ny + dy[i])) {
                     cnt++;
                     nx += dx[i];
                     ny += dy[i];
-//                    if (nx < 0 || ny < 0 || nx >= 4 || ny >= 4) break;
+                    if(board[nx][ny] !=0 ) break; // 카드 마주
                     if (dis[nx][ny] > d + cnt) {
                         dis[nx][ny] = d + cnt;
                         pq.add(new Node(d + cnt, nx, ny));
@@ -113,7 +113,7 @@ class Solution {
             board[list.get(1).x][list.get(1).y] = 0;
 
             answer = Math.min(answer,
-                    Math.min(card1 + solve(board, list.get(1).y, list.get(1).x), card2 + solve(board, list.get(0).x, list.get(0).y)));
+                    Math.min(card1 + solve(board, list.get(1).x, list.get(1).y), card2 + solve(board, list.get(0).x, list.get(0).y)));
 
             board[list.get(0).x][list.get(0).y] = k;
             board[list.get(1).x][list.get(1).y] = k;
