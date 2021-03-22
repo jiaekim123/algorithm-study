@@ -4,6 +4,9 @@
  */
 package week16;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 class Solution {
     // time -> int (초단위)
     public int getValue(String s) {
@@ -15,8 +18,10 @@ class Solution {
     // int -> string
     public String getString(int n) {
         int s = n % 60;
-        int m = (n / 60) % 60;
-        int h = (n / 3600) % 60;
+        n /= 60;
+        int m = n % 60;
+        n /= 60;
+        int h = n;
         String ret = "";
         if (h < 10) ret += "0";
         ret += String.valueOf(h) + ":";
@@ -37,31 +42,29 @@ class Solution {
         for (String s : logs) {
             int start = getValue(s.split("-")[0]);
             int end = getValue(s.split("-")[1]);
-            ++sumArray[start];
-            --sumArray[end];
+            for (int i = start; i < end; i++) sumArray[i]++; // 시청자 수 누적
         }
-        for (int i = 1; i < totalTime; i++) {
-            sumArray[i] += sumArray[i - 1]; // 구간 별 재생수
-        }
-        for (int i = 1; i < totalTime; i++) {
-            sumArray[i] += sumArray[i - 1]; // 누적 재생수
-        }
-        Record record = new Record();
-        record.sum = sumArray[advTime];
 
-        for (int start = advTime + 1; start < totalTime; start++) {
-            int sum = sumArray[start] - sumArray[start - advTime];
-            if (sum > record.sum) {
-                record.start = start - advTime + 1;
-                record.sum = sum;
+        int idx = 0;
+        long sum = 0;
+        long maxSum = 0;
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < advTime; i++) {
+            sum += sumArray[i];
+            q.add(sumArray[i]);
+        }
+        maxSum = sum;
+
+        for (int i = advTime; i < totalTime; i++) {
+            sum += sumArray[i];
+            q.add(sumArray[i]);
+            sum -= q.poll();
+            if(sum > maxSum){
+                idx = i-advTime+1;
+                maxSum = sum;
             }
         }
-        return getString(record.start);
+        return getString(idx);
     }
 
-    class Record {
-        int sum = 0;
-        int start = 0;
-        int end = 0;
-    }
 }
