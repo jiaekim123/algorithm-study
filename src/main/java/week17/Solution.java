@@ -5,25 +5,17 @@ https://programmers.co.kr/learn/courses/30/lessons/72411
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 public class Solution {
-    String[] array;
-
     public String[] solution(String[] orders, int[] course) {
-        HashSet<String> set = new HashSet<>();
-        for (String o : orders) {
-            String[] arr = o.split("");
-            for (String a : arr) {
-                set.add(a);
-            }
-        }
-        array = set.stream().toArray(String[]::new); // stream 문법
         String ans = "";
         for (int c : course) {
             ArrayList<String> list = new ArrayList<>();
-            combi(c, "", 0, list);
+            for(String order : orders){
+                combi(c,"", 0, list, order.split(""));
+            }
+
             if (!ans.equals("")) ans += " ";
             ans += solve(orders, list);
 
@@ -34,14 +26,18 @@ public class Solution {
     }
 
     // 글자수 n 개인 조합
-    public void combi(int n, String ret, int start, List<String> list) {
+    public void combi(int n, String ret, int start, List<String> list, String[] order) {
         if (ret.length() == n) {
-            list.add(ret);
+            String[] arr = ret.split("");
+            Arrays.sort(arr);
+            ret = "";
+            for(String s : arr)ret+=s;
+            if(!list.contains(ret)) list.add(ret);
             return;
         }
 
-        for (int i = start; i < array.length; i++) {
-            combi(n, ret + array[i], i + 1, list);
+        for (int i = start; i < order.length; i++) {
+            combi(n, ret + order[i], i + 1, list, order);
         }
     }
 
